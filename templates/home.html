@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>YouTube RAG Bot</title>
+    </head>
+    <body>
+        <section class="container">
+            <div class="box">
+                <div>
+                    <h3>Ingest Video</h3>
+                    <input
+                        type="text"
+                        placeholder="Youtube URL"
+                        id="youtube-url"
+                    />
+                    <small
+                        >(Once a video is ingested, it doesn't need to be done
+                        again only new videos are needed to be ingested)</small
+                    >
+                    <button id="ingest-btn">Ingest</button>
+                </div>
+                <div>
+                    <h3>Ask Question</h3>
+                    <input type="text" placeholder="Question" id="question" />
+                    <button id="ask-btn">Ask</button>
+                    <div id="answer">ANSWER WILL BE HERE</div>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            const ingestBtn = document.getElementById("ingest-btn");
+            const askBtn = document.getElementById("ask-btn");
+            const questionInput = document.getElementById("question");
+            const answerDiv = document.getElementById("answer");
+            const youtubeUrlInput = document.getElementById("youtube-url");
+
+            // Call ingest api make the button disbaled with 'Ingesting...' and on success give a alert
+            ingestBtn.addEventListener("click", async () => {
+                ingestBtn.disabled = true;
+                ingestBtn.innerText = "Ingesting...";
+
+                const response = await fetch("/api/ingest/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        url: youtubeUrlInput.value,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert("Video ingested successfully!");
+                } else {
+                    alert("Something went wrong!");
+                }
+
+                ingestBtn.disabled = false;
+                ingestBtn.innerText = "Ingest";
+            });
+
+            // Call ask api make the button disbaled with 'Asking...' and on success give a alert
+            askBtn.addEventListener("click", async () => {
+                askBtn.disabled = true;
+                askBtn.innerText = "Asking...";
+
+                const response = await fetch("/api/ask/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        question: questionInput.value,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    answerDiv.innerText = data.answer;
+                } else {
+                    alert("Something went wrong!");
+                }
+
+                askBtn.disabled = false;
+                askBtn.innerText = "Ask";
+            });
+        </script>
+
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&display=swap");
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                transition: 0.3s ease-in-out;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            :root {
+                --head-font: "Lexend", sans-serif;
+                --text-font: "Lato", sans-serif;
+            }
+
+            body {
+                background: linear-gradient(
+                    59deg,
+                    rgb(40, 3, 61),
+                    rgb(143, 35, 206),
+                    rgb(140, 8, 216),
+                    rgb(40, 3, 61)
+                );
+                color: black;
+                font-family: var(--text-font);
+                min-height: 100svh;
+                width: 100%;
+            }
+
+            .container {
+                width: 100%;
+                min-height: 100svh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .box {
+                width: 80vw;
+                max-width: 500px;
+                background: rgb(255, 255, 255, 0.4);
+                backdrop-filter: blur(10px);
+                border: 2px solid rgb(255, 255, 255, 0.2);
+                box-shadow: 0px 0px 100px rgb(255, 255, 255, 0.7);
+                padding: 30px;
+                border-radius: 30px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 50px;
+                max-height: 90vh;
+                overflow-y: scroll;
+                scrollbar-width: none;
+            }
+
+            .box div {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                width: 100%;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .box h3 {
+                font-size: 25px;
+                font-family: var(--head-font);
+                color: rgb(0, 0, 0);
+            }
+            .box input {
+                width: 100%;
+                font-family: var(--text-font);
+                padding: 15px 20px;
+                border-radius: 10px;
+                border: none;
+                outline: none;
+                font-size: 17px;
+                color: black;
+                background: rgb(240, 240, 240);
+                border: 2px solid rgb(230, 230, 230);
+            }
+
+            .box input:focus {
+                border: 2px solid rgb(103, 0, 151);
+            }
+
+            .box button {
+                width: 100%;
+                font-family: var(--head-font);
+                padding: 15px 20px;
+                border-radius: 10px;
+                border: none;
+                outline: none;
+                font-size: 17px;
+                color: white;
+                background: rgb(60, 0, 128);
+                cursor: pointer;
+            }
+
+            .box button:hover {
+                transform: translateY(-3px);
+            }
+            .box small {
+                text-align: center;
+            }
+
+            .box #answer {
+                text-align: left;
+                font-size: 15px;
+                border-radius: 15px;
+                background: white;
+                line-height: 1.3;
+                padding: 20px;
+            }
+        </style>
+    </body>
+</html>

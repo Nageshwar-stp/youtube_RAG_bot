@@ -38,7 +38,18 @@ def video_id(url):
 def fetch_transcript(url):
     vid = video_id(url)
     yt_api = YouTubeTranscriptApi()
-    data = yt_api.fetch(vid)
+
+    # fetch available transcripts
+    transcript_list = yt_api.list(vid)
+
+    language_available = []
+    for item in transcript_list:
+        language_available.append(item.language_code)
+
+    if len(language_available) == 0:
+        return "No transcripts available for this video."
+
+    data = yt_api.fetch(vid, languages=language_available)
 
     # join the transcript into a single string separated by spaces
     transcript = ""
